@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>8D Sound Example</title>
+  <style>
+    #playButton {
+      padding: 10px 20px;
+      background-color: #4287f5;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>8D Sound Example</h1>
+
+  <button id="playButton">Play</button>
+  <audio id="audioElement" src="./nhac/NangTho-HoangDung-6413381.mp3"></audio>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+  const playButton = document.getElementById('playButton');
+  const audioElement = document.getElementById('audioElement');
+
+  playButton.addEventListener('click', () => {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const panner = audioContext.createPanner();
+    panner.panningModel = 'HRTF';
+
+    panner.distanceModel = 'linear';
+    panner.refDistance = 1;
+    panner.maxDistance = 10000;
+    panner.rolloffFactor = 1;
+    panner.coneInnerAngle = 360;
+    panner.coneOuterAngle = 0;
+    panner.coneOuterGain = 0;
+
+    let position = 1; // Vị trí ban đầu bên phải
+
+    function playSound() {
+      const source = audioContext.createMediaElementSource(audioElement);
+      source.connect(panner);
+      panner.connect(audioContext.destination);
+
+      source.onended = () => {
+        position = -position; // Đảo ngược vị trí âm thanh
+        panner.setPosition(position, 0, 0); // Đặt vị trí âm thanh mới
+        setTimeout(playSound, 5000); // Chạy lại sau 5 giây
+      };
+
+      audioElement.play();
+    }
+
+    function reversePosition() {
+      position = -position; // Đảo ngược vị trí âm thanh
+      panner.setPosition(position, 0, 0); // Đặt vị trí âm thanh mới
+    }
+
+    playSound();
+
+    setInterval(reversePosition, 5000); // Chuyển đổi vị trí mỗi 5 giây
+  });
+});
+
+  </script>
+</body>
+</html>
